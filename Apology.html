@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>I'm Really Sorry 🤍</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Fraunces (Expressive Serif) & Plus Jakarta Sans (Warm Sans) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Canvas Confetti for Celebration -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['Fraunces', 'Georgia', 'serif'],
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+          },
+          colors: {
+            cream: '#FDF8F5',
+            blush: '#FCEAE6',
+            roseSoft: '#F4C7C3',
+            terracotta: '#D96B52',
+            terracottaDark: '#B8523B',
+            espresso: '#3B2824',
+            warmGray: '#6E5A56',
+          },
+          animation: {
+            'float-slow': 'float 8s ease-in-out infinite',
+            'float-delayed': 'float 10s ease-in-out 3s infinite',
+            'pulse-soft': 'pulseSoft 3s ease-in-out infinite',
+            'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            'hug-bounce': 'hugBounce 1.5s ease-in-out infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+              '50%': { transform: 'translateY(-18px) rotate(4deg)' },
+            },
+            pulseSoft: {
+              '0%, 100%': { transform: 'scale(1)' },
+              '50%': { transform: 'scale(1.03)' },
+            },
+            fadeInUp: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            },
+            hugBounce: {
+              '0%, 100%': { transform: 'scale(1) rotate(-2deg)' },
+              '50%': { transform: 'scale(1.08) rotate(2deg)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-cream text-espresso font-sans antialiased min-h-screen relative overflow-x-hidden selection:bg-roseSoft selection:text-espresso">
+
+  <!-- Ambient Background Blobs & Floating Petals -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
+    <div class="absolute -top-24 -left-24 w-72 h-72 sm:w-96 sm:h-96 bg-blush rounded-full mix-blend-multiply filter blur-3xl opacity-80 animate-float-slow"></div>
+    <div class="absolute top-1/3 -right-24 w-80 h-80 sm:w-[28rem] sm:h-[28rem] bg-[#F9E2D2] rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-float-delayed"></div>
+    <div class="absolute -bottom-32 left-1/4 w-96 h-96 bg-roseSoft/40 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-float-slow"></div>
+    
+    <!-- Container for JS-generated floating gentle hearts/petals -->
+    <div id="ambient-particles" class="absolute inset-0"></div>
+  </div>
+
+  <!-- Toast Notification (Replaces alert) -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 transform translate-y-4">
+    <div class="bg-espresso text-cream px-5 py-3 rounded-full shadow-xl flex items-center gap-2.5 text-sm font-medium border border-white/10">
+      <i data-lucide="check-circle-2" class="w-4 h-4 text-roseSoft"></i>
+      <span id="toast-message">Link copied to clipboard!</span>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <main class="relative z-10 max-w-xl mx-auto px-4 sm:px-6 py-8 sm:py-12 flex flex-col gap-6 sm:gap-8">
+    
+    <!-- Top Control Bar (Customize / Lock Mode) -->
+    <header class="flex items-center justify-between bg-white/70 backdrop-blur-md px-4 py-2.5 rounded-full border border-roseSoft/40 shadow-sm animate-fade-in-up">
+      <div class="flex items-center gap-2 text-xs sm:text-sm font-medium text-warmGray">
+        <span class="inline-block w-2 h-2 rounded-full bg-terracotta animate-pulse"></span>
+        <span id="mode-indicator">A little note for you</span>
+      </div>
+      
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <button id="toggle-edit-btn" onclick="toggleEditMode()" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-blush hover:bg-roseSoft/60 text-espresso transition-colors flex items-center gap-1.5">
+          <i data-lucide="pen-line" class="w-3.5 h-3.5"></i>
+          <span id="edit-btn-text">Customize</span>
+        </button>
+        <button onclick="shareLink()" class="px-3 py-1.5 rounded-full text-xs font-semibold bg-espresso hover:bg-espresso/90 text-cream transition-colors flex items-center gap-1.5 shadow-sm">
+          <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+          <span>Share</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 1. Sincere Apology Card -->
+    <section class="bg-white/85 backdrop-blur-xl rounded-3xl p-6 sm:p-9 shadow-[0_12px_40px_-15px_rgba(59,40,36,0.1)] border border-white transition-all duration-300 animate-fade-in-up">
+      
+      <!-- Decorative Header Icon -->
+      <div class="w-12 h-12 rounded-2xl bg-blush text-terracotta flex items-center justify-center mb-5 shadow-inner">
+        <i data-lucide="heart-handshake" class="w-6 h-6"></i>
+      </div>
+
+      <!-- VIEW MODE: Apology Letter -->
+      <div id="letter-view" class="space-y-4">
+        <h1 class="font-serif text-3xl sm:text-4xl font-semibold tracking-tight text-espresso leading-tight">
+          Hey <span id="display-recipient" class="text-terracotta italic">Alex</span>,
+        </h1>
+        
+        <p id="display-message" class="text-base sm:text-lg text-warmGray leading-relaxed whitespace-pre-line">I’m really sorry for saying dumb stuff every time 😭 I honestly don't think before speaking, and I feel terrible about it. I’m really sorry—and to be completely honest, I have literally no idea how I'm gonna make up for it.
+
+You're a really great friend and you matter a lot to me, so I promise I'll start thinking carefully before I speak from now on. Whenever you want to talk, I’m right here. Please forgive me.</p>
+
+        <div class="pt-3 flex items-center justify-between border-t border-blush/80">
+          <p class="font-serif italic text-espresso text-base sm:text-lg">
+            Your friend, <span id="display-sender" class="font-semibold not-italic">Itachi</span>
+          </p>
+          <span class="text-xs text-warmGray/70 bg-cream px-3 py-1 rounded-full border border-blush">
+            100% Sincere
+          </span>
+        </div>
+      </div>
+
+      <!-- EDIT MODE: Customization Form -->
+      <div id="letter-edit" class="hidden space-y-4">
+        <div class="flex items-center justify-between pb-2 border-b border-blush">
+          <h2 class="font-serif text-xl font-semibold text-espresso">Personalize Your Apology</h2>
+          <span class="text-xs text-terracotta font-medium">Auto-updates link</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-warmGray uppercase tracking-wider mb-1">Their Name</label>
+            <input type="text" id="input-recipient" placeholder="e.g., Alex" class="w-full px-3.5 py-2.5 rounded-xl bg-cream border border-roseSoft/60 text-espresso text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/40" oninput="updateContent()" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-warmGray uppercase tracking-wider mb-1">Your Name</label>
+            <input type="text" id="input-sender" placeholder="e.g., Itachi" class="w-full px-3.5 py-2.5 rounded-xl bg-cream border border-roseSoft/60 text-espresso text-sm focus:outline-none focus:ring-2 focus:ring-terracotta/40" oninput="updateContent()" />
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-semibold text-warmGray uppercase tracking-wider">Heartfelt Message</label>
+            <div class="flex gap-1.5">
+              <button type="button" onclick="applyPreset('sweet')" class="text-[11px] px-2 py-0.5 rounded-md bg-blush hover:bg-roseSoft/60 text-espresso font-medium transition">Sweet</button>
+              <button type="button" onclick="applyPreset('deep')" class="text-[11px] px-2 py-0.5 rounded-md bg-blush hover:bg-roseSoft/60 text-espresso font-medium transition">Deep</button>
+              <button type="button" onclick="applyPreset('playful')" class="text-[11px] px-2 py-0.5 rounded-md bg-blush hover:bg-roseSoft/60 text-espresso font-medium transition">Light</button>
+            </div>
+          </div>
+          <textarea id="input-message" rows="5" class="w-full px-3.5 py-2.5 rounded-xl bg-cream border border-roseSoft/60 text-espresso text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-terracotta/40" oninput="updateContent()"></textarea>
+        </div>
+
+        <div class="pt-2 flex flex-col sm:flex-row gap-2.5">
+          <button type="button" onclick="lockAndPresent()" class="flex-1 py-3 px-4 rounded-xl bg-terracotta hover:bg-terracottaDark text-white font-semibold text-sm shadow-md transition flex items-center justify-center gap-2">
+            <i data-lucide="lock" class="w-4 h-4"></i>
+            <span>Lock & Preview Mode</span>
+          </button>
+          <button type="button" onclick="shareLink()" class="py-3 px-4 rounded-xl bg-blush hover:bg-roseSoft/60 text-espresso font-semibold text-sm transition flex items-center justify-center gap-2">
+            <i data-lucide="copy" class="w-4 h-4"></i>
+            <span>Copy Share Link</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Interactive "Do You Forgive Me?" Section -->
+    <section id="forgiveness-section" class="bg-white/90 backdrop-blur-xl rounded-3xl p-6 sm:p-9 shadow-[0_15px_50px_-15px_rgba(217,107,82,0.18)] border border-roseSoft/50 text-center relative overflow-hidden transition-all duration-500 animate-fade-in-up" style="animation-delay: 0.15s;">
+      
+      <!-- Question State -->
+      <div id="question-state" class="space-y-6">
+        <div>
+          <h2 class="font-serif text-2xl sm:text-3xl font-semibold text-espresso">Please forgive me, <span id="question-recipient">Alex</span>?</h2>
+          <p id="empathetic-subtext" class="text-sm sm:text-base text-warmGray mt-2 min-h-[1.5rem] transition-all duration-300">
+            No pressure—just wanted you to know I genuinely mean it.
+          </p>
+        </div>
+
+        <!-- Interactive Buttons Area -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2 pb-2 min-h-[110px] relative">
+          
+          <!-- YES Button (Grows warmer & bigger) -->
+          <button 
+            id="yes-btn" 
+            onclick="handleForgive()"
+            style="transform: scale(1);"
+            class="z-20 px-7 py-3.5 rounded-2xl bg-terracotta hover:bg-terracottaDark text-white font-semibold text-base shadow-lg shadow-terracotta/30 transition-all duration-300 ease-out flex items-center gap-2 cursor-pointer active:scale-95"
+          >
+            <i data-lucide="heart" class="w-5 h-5 fill-current"></i>
+            <span>Yes, I forgive you</span>
+          </button>
+
+          <!-- NO / NOT YET Button (Playfully dodges & shrinks with empathetic text) -->
+          <button 
+            id="no-btn" 
+            onclick="handleNotYet()"
+            onmouseover="handleNoHover()"
+            style="transform: scale(1);"
+            class="z-10 px-5 py-3 rounded-2xl bg-cream hover:bg-blush text-warmGray border border-roseSoft/70 font-medium text-sm transition-all duration-300 ease-out cursor-pointer"
+          >
+            Not yet
+          </button>
+        </div>
+      </div>
+
+      <!-- Celebration State (Hidden until Yes is clicked) -->
+      <div id="celebration-state" class="hidden py-4 space-y-5 animate-fade-in-up">
+        <div class="w-20 h-20 mx-auto rounded-full bg-blush text-terracotta flex items-center justify-center shadow-inner animate-hug-bounce">
+          <i data-lucide="sparkles" class="w-10 h-10"></i>
+        </div>
+        
+        <div class="space-y-2">
+          <h2 class="font-serif text-3xl sm:text-4xl font-semibold text-espresso">Thank you so much 🤍</h2>
+          <p class="text-base text-warmGray max-w-md mx-auto leading-relaxed">
+            I really appreciate you being such a great friend. I promise to think carefully before speaking from now on—and whenever you want to talk, I'm right here.
+          </p>
+        </div>
+
+        <div class="pt-2">
+          <button onclick="sendVirtualHug()" class="px-6 py-3 rounded-full bg-blush hover:bg-roseSoft/70 text-espresso font-semibold text-sm transition inline-flex items-center gap-2 shadow-sm">
+            <span>🤍</span>
+            <span>Send a Warm Hug Back</span>
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+      <!-- Subtle Footer -->
+    <footer class="text-center text-xs text-warmGray/60 pb-4">
+      Made with sincerity by <span id="footer-sender">Itachi</span> 🌷
+    </footer>
+
+  </main>
+
+  <script>
+    // --- State Management ---
+    const state = {
+      recipient: 'Alex',
+      sender: 'Itachi',
+      message: `I’m really sorry for saying dumb stuff every time 😭 I honestly don't think before speaking, and I feel terrible about it. I’m really sorry—and to be completely honest, I have literally no idea how I'm gonna make up for it.\n\nYou're a really great friend and you matter a lot to me, so I promise I'll start thinking carefully before I speak from now on. Whenever you want to talk, I’m right here. Please forgive me.`,
+      isEditing: false,
+      isLocked: false,
+      noClicks: 0,
+      yesScale: 1,
+      noScale: 1
+    };
+
+    const presets = {
+      sweet: `I’m really sorry for saying dumb stuff every time 😭 I honestly don't think before speaking, and I feel terrible about it. I’m really sorry—and to be completely honest, I have literally no idea how I'm gonna make up for it.\n\nYou're a really great friend and you matter a lot to me, so I promise I'll start thinking carefully before I speak from now on. Whenever you want to talk, I’m right here. Please forgive me.`,
+      deep: `I want to apologize sincerely, without making any excuses. As a friend, I should think before speaking, and I messed up.\n\nI’m really sorry for saying dumb stuff without thinking first, and I honestly have no idea how I'm gonna make up for it. You matter a lot to me as a friend—take all the time you need, and whenever you want to talk, I’m right here. Please forgive me.`,
+      playful: `Okay, I officially admit it—my brain completely shut off before I spoke and I’m really sorry 😭 I have literally no idea how I'm gonna make up for saying dumb stuff every time.\n\nYou're a great friend and I promise I'll start thinking carefully before I speak from now on. Whenever you want to talk, I’m right here. Please forgive me.`
+    };
+
+    const empatheticResponses = [
+      "That's completely fair—I get why you're mad 🤍",
+      "I deserved that. I'll definitely think before speaking next time.",
+      "Totally understand, I really messed up.",
+      "I’m really sorry for saying dumb stuff without thinking first.",
+      "I'll be right here whenever you feel like talking again.",
+      "Fair enough, I'm genuinely sorry though.",
+      "Okay, the 'Yes' button is looking pretty friendly right now..."
+    ];
+
+    // --- Initialization & URL Params ---
+    window.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      createAmbientParticles();
+      loadFromURL();
+      updateDisplay();
+    });
+
+    function loadFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('to')) state.recipient = params.get('to');
+      if (params.has('from')) state.sender = params.get('from');
+      if (params.has('msg')) state.message = params.get('msg');
+      if (params.get('locked') === '1') {
+        state.isLocked = true;
+        document.getElementById('toggle-edit-btn').classList.add('hidden');
+        document.getElementById('mode-indicator').textContent = `A heartfelt note for ${state.recipient}`;
+      }
+
+      document.getElementById('input-recipient').value = state.recipient;
+      document.getElementById('input-sender').value = state.sender;
+      document.getElementById('input-message').value = state.message;
+    }
+
+    function updateDisplay() {
+      document.getElementById('display-recipient').textContent = state.recipient;
+      document.getElementById('display-sender').textContent = state.sender;
+      document.getElementById('display-message').textContent = state.message;
+      document.getElementById('question-recipient').textContent = state.recipient;
+      document.getElementById('footer-sender').textContent = state.sender;
+      if (state.isLocked) {
+        document.getElementById('mode-indicator').textContent = `A heartfelt note for ${state.recipient}`;
+      }
+    }
+
+    function updateContent() {
+      state.recipient = document.getElementById('input-recipient').value.trim() || 'Alex';
+      state.sender = document.getElementById('input-sender').value.trim() || 'Itachi';
+      state.message = document.getElementById('input-message').value || presets.sweet;
+      updateDisplay();
+    }
+
+    function applyPreset(type) {
+      if (presets[type]) {
+        state.message = presets[type];
+        document.getElementById('input-message').value = state.message;
+        updateDisplay();
+        showToast('Applied message template');
+      }
+    }
+
+    function toggleEditMode() {
+      if (state.isLocked) return;
+      state.isEditing = !state.isEditing;
+      const viewEl = document.getElementById('letter-view');
+      const editEl = document.getElementById('letter-edit');
+      const btnText = document.getElementById('edit-btn-text');
+
+      if (state.isEditing) {
+        viewEl.classList.add('hidden');
+        editEl.classList.remove('hidden');
+        btnText.textContent = 'Done';
+      } else {
+        editEl.classList.add('hidden');
+        viewEl.classList.remove('hidden');
+        btnText.textContent = 'Customize';
+      }
+    }
+
+    function lockAndPresent() {
+      state.isEditing = false;
+      state.isLocked = true;
+      document.getElementById('letter-edit').classList.add('hidden');
+      document.getElementById('letter-view').classList.remove('hidden');
+      document.getElementById('toggle-edit-btn').classList.add('hidden');
+      document.getElementById('mode-indicator').textContent = `A heartfelt note for ${state.recipient}`;
+      showToast('Preview locked! Ready to share.');
+    }
+
+    function shareLink() {
+      const url = new URL(window.location.href.split('?')[0]);
+      url.searchParams.set('to', state.recipient);
+      url.searchParams.set('from', state.sender);
+      url.searchParams.set('msg', state.message);
+      url.searchParams.set('locked', '1');
+
+      const tempInput = document.createElement('input');
+      tempInput.value = url.toString();
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+
+      showToast('Apology link copied to clipboard!');
+    }
+
+    // --- Interactive Forgiveness Logic ---
+    function handleNotYet() {
+      state.noClicks++;
+      const subtext = document.getElementById('empathetic-subtext');
+      const yesBtn = document.getElementById('yes-btn');
+      const noBtn = document.getElementById('no-btn');
+
+      // Update empathetic response
+      const msgIndex = Math.min(state.noClicks - 1, empatheticResponses.length - 1);
+      subtext.textContent = empatheticResponses[msgIndex];
+      subtext.classList.add('text-terracotta', 'font-medium');
+
+      // Grow Yes button gently, shrink No button
+      state.yesScale = Math.min(state.yesScale + 0.12, 1.65);
+      state.noScale = Math.max(state.noScale - 0.08, 0.65);
+
+      yesBtn.style.transform = `scale(${state.yesScale})`;
+      
+      // Gentle playful nudge on click
+      const randomX = (Math.random() - 0.5) * 70;
+      const randomY = (Math.random() - 0.5) * 30;
+      noBtn.style.transform = `translate(${randomX}px, ${randomY}px) scale(${state.noScale})`;
+    }
+
+    function handleNoHover() {
+      if (state.noClicks >= 2) {
+        const noBtn = document.getElementById('no-btn');
+        const randomX = (Math.random() - 0.5) * 90;
+        const randomY = (Math.random() - 0.5) * 40;
+        noBtn.style.transform = `translate(${randomX}px, ${randomY}px) scale(${state.noScale})`;
+      }
+    }
+
+    function handleForgive() {
+      document.getElementById('question-state').classList.add('hidden');
+      document.getElementById('celebration-state').classList.remove('hidden');
+      triggerWarmConfetti();
+    }
+
+    function sendVirtualHug() {
+      triggerWarmConfetti();
+      showToast(`Warm hug sent to ${state.sender}! 🤍`);
+    }
+
+    function triggerWarmConfetti() {
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 75,
+          spread: 70,
+          origin: { y: 0.65 },
+          colors: ['#D96B52', '#F4C7C3', '#FCEAE6', '#E8998D', '#3B2824']
+        });
+      }
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      toastMsg.textContent = message;
+      toast.classList.remove('opacity-0', 'translate-y-4');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      clearTimeout(window.toastTimeout);
+      window.toastTimeout = setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-4');
+      }, 2800);
+    }
+
+    function createAmbientParticles() {
+      const container = document.getElementById('ambient-particles');
+      const symbols = ['🌸', '🤍', '🌷', '✨'];
+      for (let i = 0; i < 12; i++) {
+        const el = document.createElement('span');
+        el.textContent = symbols[i % symbols.length];
+        el.className = 'absolute text-sm sm:text-base opacity-30 select-none animate-float-slow';
+        el.style.left = `${Math.random() * 95}%`;
+        el.style.top = `${Math.random() * 95}%`;
+        el.style.animationDelay = `${Math.random() * 6}s`;
+        el.style.animationDuration = `${7 + Math.random() * 6}s`;
+        container.appendChild(el);
+      }
+    }
+  </script>
+</body>
+</html>
